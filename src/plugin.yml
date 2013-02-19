@@ -1,0 +1,16 @@
+name: PvPTag
+version: 1.1
+main: com.github.cman85.PvPTag.PvPTag
+commands:
+   csafe:
+      description: Make a player safe from attack
+      usage: /csafe <player>
+   callsafe:
+      description: Make a player safe from attack
+      usage: /callsafe <player>
+   ch:
+      description: Make a player vulnerable to attack
+      usage: /ch <player>
+   callhit:
+      description: Make a player vulnerable to attack
+      usage: /callhit <player>
