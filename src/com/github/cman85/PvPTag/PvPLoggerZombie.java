@@ -11,13 +11,15 @@ import java.util.logging.*;
 public class PvPLoggerZombie {
    public static Set<PvPLoggerZombie> zombies = new HashSet<PvPLoggerZombie>();
    public static Set<String> waitingToDie = new HashSet<String>();
+   public static Set<Integer> zombieIds = new HashSet<Integer>();
    private Zombie zombie;
    private String player;
    private PlayerInventory contents;
 
-   public PvPLoggerZombie(String player, Zombie zombie){
+   public PvPLoggerZombie(String player){
       this.player = player;
-      this.zombie = zombie;
+      Player p = Bukkit.getPlayer(player);
+      zombieIds.add((zombie = (Zombie)p.getWorld().spawnEntity(p.getLocation(), EntityType.ZOMBIE)).getEntityId());
       zombie.getWorld().playEffect(zombie.getLocation(), Effect.MOBSPAWNER_FLAMES, 1, 1);
       zombie.setRemoveWhenFarAway(false);
       setInventoryContents(Bukkit.getPlayer(player).getInventory());
@@ -127,8 +129,16 @@ public class PvPLoggerZombie {
 
    public static PvPLoggerZombie getByZombie(Zombie z){
       for(PvPLoggerZombie pz : zombies){
-         if(pz.getZombie().equals(z)) return pz;
+         if(zombieEquals(pz.getZombie(), z)) return pz;
       }
       return null;
+   }
+
+   private static boolean zombieEquals(Zombie z1, Zombie z2){
+      return (z1.getEntityId() == (z2.getEntityId()));
+   }
+
+   public static boolean isPvPZombie(Zombie z){
+      return zombieIds.contains(z.getEntityId());
    }
 }

@@ -21,6 +21,7 @@ public class PvPTag extends JavaPlugin implements Listener {
    private long DEATH_TP_DELAY = 30000;
    private DeathChestListener dcl;
    public static String version;
+   private long lastLogout = System.currentTimeMillis();
 
    public void onEnable(){
       String p = this.getServer().getClass().getPackage().getName();
@@ -209,8 +210,7 @@ public class PvPTag extends JavaPlugin implements Listener {
          Player p = e.getNamedPlayer();
          e.setTag(ChatColor.DARK_RED + p.getName());
       }else{
-         if(e.getNamedPlayer().isOnline())
-            e.setTag(e.getNamedPlayer().getName());
+         e.setTag(e.getNamedPlayer().getName());
       }
    }
 
@@ -247,6 +247,8 @@ public class PvPTag extends JavaPlugin implements Listener {
       }
       PvPLoggerZombie pz = PvPLoggerZombie.getByOwner(e.getPlayer().getName());
       if(pz != null){
+         safeTimes.put(e.getPlayer().getName(), calcSafeTime(SAFE_DELAY));
+         TagAPI.refreshPlayer(e.getPlayer());
          pz.despawnNoDrop(true, true);
       }
    }
@@ -265,21 +267,18 @@ public class PvPTag extends JavaPlugin implements Listener {
    @EventHandler
    public void onQuit(PlayerQuitEvent e){
       if(! isSafe(e.getPlayer().getName())){
-         System.out.println(e.getPlayer().getName() + " Has logged out unsafe");
-         Zombie z = (Zombie)e.getPlayer().getWorld().spawnEntity(e.getPlayer().getLocation(), EntityType.ZOMBIE);
-         new PvPLoggerZombie(e.getPlayer().getName(), z);
+         lastLogout = System.currentTimeMillis();
+         new PvPLoggerZombie(e.getPlayer().getName());
       }
    }
 
    @EventHandler(priority = EventPriority.HIGHEST)
    public void onCreatue(CreatureSpawnEvent e){
       if(e.getEntity() instanceof Zombie){
-         PvPLoggerZombie pz = PvPLoggerZombie.getByZombie((Zombie)e.getEntity());
-         if(pz != null){
-            System.out.println("Creature Spawn Event uncancelled");
+         if(System.currentTimeMillis() - lastLogout < 20){
             e.setCancelled(false);
+         }else{
          }
       }
    }
-
 }
