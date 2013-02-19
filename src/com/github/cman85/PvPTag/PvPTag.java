@@ -1,4 +1,3 @@
-
 package com.github.cman85.PvPTag;
 
 import org.bukkit.*;
@@ -11,16 +10,22 @@ import org.bukkit.plugin.java.*;
 import org.kitteh.tag.*;
 
 import java.util.*;
+import java.util.logging.*;
 
 public class PvPTag extends JavaPlugin implements Listener {
 
    HashMap<String, Long> safeTimes = new HashMap<String, Long>();
    HashMap<String, Long> deathTimes = new HashMap<String, Long>();
+   private static Logger logger;
    private long SAFE_DELAY = 30000;
    private long DEATH_TP_DELAY = 30000;
    private DeathChestListener dcl;
+   public static String version;
 
    public void onEnable(){
+      String p = this.getServer().getClass().getPackage().getName();
+      version = p.substring(p.lastIndexOf('.') + 1);
+      logger = getLogger();
       dcl = new DeathChestListener(this);
       getServer().getPluginManager().registerEvents(this, this);
       getServer().getPluginManager().registerEvents(dcl, this);
@@ -57,7 +62,6 @@ public class PvPTag extends JavaPlugin implements Listener {
          Player player = getServer().getPlayer(s);
          if(player == null){
             iter.remove();
-            continue;
          }else if(isSafe(s)){
             iter.remove();
             TagAPI.refreshPlayer(player);
@@ -106,8 +110,6 @@ public class PvPTag extends JavaPlugin implements Listener {
             }
 
          }
-      }else{
-         return;
       }
 
    }
@@ -183,10 +185,13 @@ public class PvPTag extends JavaPlugin implements Listener {
 
    public boolean isSafe(String player){
       if(safeTimes.containsKey(player)){
-         if(safeTimes.get(player) < System.currentTimeMillis()) return true;
-         else return false;
+         return (safeTimes.get(player) < System.currentTimeMillis());
       }
       return true;
+   }
+
+   public static void log(Level level, String message){
+      logger.log(level, message);
    }
 
    @EventHandler
@@ -228,6 +233,52 @@ public class PvPTag extends JavaPlugin implements Listener {
       if(! isSafe(ev.getPlayer().getName()) && ! ev.getPlayer().isOp()){
          ev.setCancelled(true);
          ev.getPlayer().sendMessage(ChatColor.RED + "You cannot teleport until you are safe.");
+      }
+   }
+
+   @SuppressWarnings("deprecation")
+   @EventHandler
+   public void onJoin(PlayerJoinEvent e){
+      if(PvPLoggerZombie.waitingToDie.contains(e.getPlayer().getName())){
+         e.getPlayer().getInventory().clear();
+         e.getPlayer().setHealth(0);
+         e.getPlayer().updateInventory();
+         PvPLoggerZombie.waitingToDie.remove(e.getPlayer().getName());
+      }
+      PvPLoggerZombie pz = PvPLoggerZombie.getByOwner(e.getPlayer().getName());
+      if(pz != null){
+         pz.despawnNoDrop(true, true);
+      }
+   }
+
+   @EventHandler
+   public void entityDeath(EntityDeathEvent e){
+      if(e.getEntity() instanceof Zombie){
+         PvPLoggerZombie pz = PvPLoggerZombie.getByZombie((Zombie)e.getEntity());
+         if(pz != null){
+            PvPLoggerZombie.waitingToDie.add(pz.getPlayer());
+            pz.despawnDrop(true);
+         }
+      }
+   }
+
+   @EventHandler
+   public void onQuit(PlayerQuitEvent e){
+      if(! isSafe(e.getPlayer().getName())){
+         System.out.println(e.getPlayer().getName() + " Has logged out unsafe");
+         Zombie z = (Zombie)e.getPlayer().getWorld().spawnEntity(e.getPlayer().getLocation(), EntityType.ZOMBIE);
+         new PvPLoggerZombie(e.getPlayer().getName(), z);
+      }
+   }
+
+   @EventHandler(priority = EventPriority.HIGHEST)
+   public void onCreatue(CreatureSpawnEvent e){
+      if(e.getEntity() instanceof Zombie){
+         PvPLoggerZombie pz = PvPLoggerZombie.getByZombie((Zombie)e.getEntity());
+         if(pz != null){
+            System.out.println("Creature Spawn Event uncancelled");
+            e.setCancelled(false);
+         }
       }
    }
 

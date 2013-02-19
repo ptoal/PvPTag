@@ -30,9 +30,10 @@ public class DeathChest {
    }
 
    public int getTimeLeft(){
-      return (int)((openTime /1000 - System.currentTimeMillis()/1000));
+      return (int)((openTime / 1000 - System.currentTimeMillis() / 1000));
    }
+
    public String getOwners(){
-      return dead+":"+killer;
+      return dead + ":" + killer;
    }
 }

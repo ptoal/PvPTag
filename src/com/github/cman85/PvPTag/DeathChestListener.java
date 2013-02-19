@@ -66,9 +66,9 @@ public class DeathChestListener implements Listener {
    @EventHandler
    public void onDeathChest(PlayerDeathEvent e){
 
-      Player dead = (Player)e.getEntity();
+      Player dead = e.getEntity();
       Player killer;
-      if(e.getEntity().getKiller() instanceof Player){
+      if(e.getEntity().getKiller() != null){
          killer = e.getEntity().getKiller();
       }else{
          return;
@@ -113,7 +113,7 @@ public class DeathChestListener implements Listener {
                dead.getInventory().setArmorContents(new ItemStack[]{null, null, null, null});
             }
             for(ItemStack istack : dead.getInventory()){
-               if(istack != null && istack.getTypeId() != 0){
+               if(istack != null && istack.getTypeId() != 0 && loadedItems != null){
                   if(loadedItems.length < 27){
                      addtoChest.add(istack);
                      loadedItems = addtoChest.toArray(new ItemStack[addtoChest.size()]);
@@ -126,7 +126,6 @@ public class DeathChestListener implements Listener {
          }
       }
    }
-
 
    public boolean isChestNear(final Block fb){
       if(fb.getRelative(BlockFace.NORTH).getType() == Material.CHEST) return true;
@@ -148,8 +147,9 @@ public class DeathChestListener implements Listener {
       }
       return null;
    }
+
    public void breakAll(){
-      for(DeathChest dc: chests)
+      for(DeathChest dc : chests)
          dc.getChestLoc().getBlock().breakNaturally();
       chests.clear();
    }
