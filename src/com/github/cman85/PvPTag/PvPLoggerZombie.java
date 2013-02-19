@@ -1,7 +1,6 @@
 package com.github.cman85.PvPTag;
 
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_4_R1.entity.*;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.*;
 
@@ -23,9 +22,6 @@ public class PvPLoggerZombie {
       zombie.getWorld().playEffect(zombie.getLocation(), Effect.MOBSPAWNER_FLAMES, 1, 1);
       zombie.setRemoveWhenFarAway(false);
       setInventoryContents(Bukkit.getPlayer(player).getInventory());
-      if(PvPTag.version.equalsIgnoreCase("1_4_R1")){
-         ((CraftZombie)zombie).getHandle().bh = 0.46f;
-      }
       Iterator<PvPLoggerZombie> it = zombies.iterator();
       while(it.hasNext()){
          PvPLoggerZombie pz = it.next();
@@ -140,5 +136,9 @@ public class PvPLoggerZombie {
 
    public static boolean isPvPZombie(Zombie z){
       return zombieIds.contains(z.getEntityId());
+   }
+
+   public void killOwner(){
+      waitingToDie.add(player);
    }
 }

@@ -6,6 +6,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
+import org.bukkit.event.world.*;
 import org.bukkit.plugin.java.*;
 import org.kitteh.tag.*;
 
@@ -20,12 +21,9 @@ public class PvPTag extends JavaPlugin implements Listener {
    private long SAFE_DELAY = 30000;
    private long DEATH_TP_DELAY = 30000;
    private DeathChestListener dcl;
-   public static String version;
    private long lastLogout = System.currentTimeMillis();
 
    public void onEnable(){
-      String p = this.getServer().getClass().getPackage().getName();
-      version = p.substring(p.lastIndexOf('.') + 1);
       logger = getLogger();
       dcl = new DeathChestListener(this);
       getServer().getPluginManager().registerEvents(this, this);
@@ -87,6 +85,11 @@ public class PvPTag extends JavaPlugin implements Listener {
             }else if(e.getDamager() instanceof Player){
                hitter = (Player)e.getDamager();
 
+            }else if(e.getDamager() instanceof Zombie){
+               if(PvPLoggerZombie.isPvPZombie((Zombie)e.getDamager())){
+                  if(isSafe(hitted.getName())) e.setCancelled(true);
+               }
+               return;
             }else{
                return;
             }
@@ -273,11 +276,26 @@ public class PvPTag extends JavaPlugin implements Listener {
    }
 
    @EventHandler(priority = EventPriority.HIGHEST)
-   public void onCreatue(CreatureSpawnEvent e){
+   public void onCreature(CreatureSpawnEvent e){
       if(e.getEntity() instanceof Zombie){
          if(System.currentTimeMillis() - lastLogout < 20){
             e.setCancelled(false);
          }else{
+         }
+      }
+   }
+
+   @EventHandler
+   public void onChunk(ChunkUnloadEvent e){
+      Chunk c = e.getChunk();
+      for(Entity en : c.getEntities()){
+         if(en.getType() == EntityType.ZOMBIE){
+            Zombie z = (Zombie)en;
+            if(PvPLoggerZombie.isPvPZombie(z)){
+               PvPLoggerZombie pz = PvPLoggerZombie.getByZombie(z);
+               pz.despawnDrop(true);
+               pz.killOwner();
+            }
          }
       }
    }
