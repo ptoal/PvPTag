@@ -32,9 +32,6 @@ public class DeathChestListener implements Listener {
                   if(dc.canAccess(e.getPlayer().getName())){
                      //Chest Has been accessed successfully.
                      if(e.isCancelled()) e.setCancelled(false);
-                     if(e.getPlayer().isOp()){
-                        e.getPlayer().sendMessage("\"Owner\": " + dc.getOwners() + "\nBreak time:" + dc.getTimeLeft());
-                     }
                   }else{
                      //Chest isn't theirs.
                      e.setCancelled(true);

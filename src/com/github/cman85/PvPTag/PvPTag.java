@@ -25,14 +25,25 @@ public class PvPTag extends JavaPlugin implements Listener {
 
    public void onEnable(){
       logger = getLogger();
+      manageConfig();
       dcl = new DeathChestListener(this);
       getServer().getPluginManager().registerEvents(this, this);
-      getServer().getPluginManager().registerEvents(dcl, this);
+      if(Config.getInstance().getConfig().getBoolean("DeathChest Enabled"))
+         getServer().getPluginManager().registerEvents(dcl, this);
       task();
       getServer();
    }
 
+   private void manageConfig(){
+      Config.getInstance().enable(this);
+      this.SAFE_DELAY = Config.getInstance().getConfig().getInt("Safe Time") * 1000;
+      this.DEATH_TP_DELAY = Config.getInstance().getConfig().getInt("DeathTP Time") * 1000;
+      DeathChest.CHEST_BREAK_DELAY = Config.getInstance().getConfig().getInt("Chest Time") * 1000;
+      if(! Config.getInstance().getConfig().getBoolean("DeathTP Enabled")) this.DEATH_TP_DELAY = 0;
+   }
+
    public void onDisable(){
+      Config.getInstance().disable();
       callSafeAllManual();
       dcl.breakAll();
    }
@@ -63,6 +74,7 @@ public class PvPTag extends JavaPlugin implements Listener {
             iter.remove();
          }else if(isSafe(s)){
             iter.remove();
+            player.sendMessage("§cYou are now safe.");
             TagAPI.refreshPlayer(player);
          }
       }
@@ -175,7 +187,7 @@ public class PvPTag extends JavaPlugin implements Listener {
 
    private void addUnsafe(Player p){
       safeTimes.put(p.getName(), calcSafeTime(SAFE_DELAY));
-      p.sendMessage("§cYou can now be hit anywhere for at least 30 seconds!");
+      p.sendMessage("§cYou can now be hit anywhere for at least " + (SAFE_DELAY / 1000) + "seconds!");
       TagAPI.refreshPlayer(p);
    }
 
@@ -183,7 +195,7 @@ public class PvPTag extends JavaPlugin implements Listener {
       if(player != null){
          safeTimes.remove(player.getName());
          TagAPI.refreshPlayer(player);
-         player.sendMessage("§cYou are no longer hittable.");
+         player.sendMessage("§cYou are now safe.");
       }
    }
 
@@ -199,12 +211,9 @@ public class PvPTag extends JavaPlugin implements Listener {
    }
 
    @EventHandler
-   public void onDeath(PlayerDeathEvent e){
-      if(! isSafe(e.getEntity().getName())){
-         callSafe(e.getEntity());
-      }
-      deathTimes.put(e.getEntity().getName(), calcSafeTime(DEATH_TP_DELAY));
-
+   public void onDeath(PlayerRespawnEvent e){
+      safeTimes.remove(e.getPlayer().getName());
+      deathTimes.put(e.getPlayer().getName(), calcSafeTime(DEATH_TP_DELAY));
    }
 
    @EventHandler
@@ -218,24 +227,21 @@ public class PvPTag extends JavaPlugin implements Listener {
    }
 
    @EventHandler(priority = EventPriority.HIGH)
-   public void onTp(PlayerCommandPreprocessEvent e){
-      if(e.getMessage().toLowerCase().trim().contains("/warp arena")){
+   public void onTpEvent(PlayerTeleportEvent e){
+      if(! isSafe(e.getPlayer().getName()) && ! e.getPlayer().isOp()){
+         e.setCancelled(true);
+         e.getPlayer().sendMessage(ChatColor.RED + "You cannot teleport until you are safe.");
+      }else{
          if(deathTimes.containsKey(e.getPlayer().getName())){
             Long deathTime = deathTimes.get(e.getPlayer().getName());
             Long currTime = System.currentTimeMillis();
             if(deathTime > currTime){
-               e.getPlayer().sendMessage("§cYou cannot teleport to the arena for 30 seconds after dying. Time left: §6" + (30 - (deathTime / 1000 - currTime / 1000)));
+               e.getPlayer().sendMessage("§cYou cannot teleport for " + (DEATH_TP_DELAY / 1000) + "seconds after dying. Time left: §6" + ((DEATH_TP_DELAY / 1000) - (deathTime / 1000 - currTime / 1000)));
                e.setCancelled(true);
+            }else{
+
             }
          }
-      }
-   }
-
-   @EventHandler(priority = EventPriority.HIGH)
-   public void onTpEvent(PlayerTeleportEvent ev){
-      if(! isSafe(ev.getPlayer().getName()) && ! ev.getPlayer().isOp()){
-         ev.setCancelled(true);
-         ev.getPlayer().sendMessage(ChatColor.RED + "You cannot teleport until you are safe.");
       }
    }
 

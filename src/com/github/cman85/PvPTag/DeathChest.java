@@ -8,7 +8,7 @@ public class DeathChest {
    private String killer;
    private long openTime;
    private Location chestLoc;
-   private static long CHEST_BREAK_DELAY = 45000;
+   public static long CHEST_BREAK_DELAY = 45000;
 
    public DeathChest(String dead, String killer, Location chestLoc){
       this.dead = dead;

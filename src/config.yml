@@ -1,0 +1,5 @@
+Safe Time: 30            #Amount of seconds before players become "safe"
+Chest Time: 45           #Amount of seconds before deathchests are open for everyone
+DeathTP Time: 30         #Amount of seconds before players can teleport after death
+DeathChest Enabled: true
+DeathTP Enabled: true
