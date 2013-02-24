@@ -1,5 +1,6 @@
 package com.github.cman85.PvPTag;
 
+import org.bukkit.*;
 import org.bukkit.configuration.file.*;
 
 import java.io.*;
@@ -79,5 +80,9 @@ public class Config {
       }catch (IOException e){
          e.printStackTrace();
       }
+   }
+
+   public ChatColor parseNameTagColor(){
+      return ChatColor.valueOf(config.getString("NameTag Color"));
    }
 }

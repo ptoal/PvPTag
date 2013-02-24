@@ -11,6 +11,7 @@ public class PvPLoggerZombie {
    public static Set<PvPLoggerZombie> zombies = new HashSet<PvPLoggerZombie>();
    public static Set<String> waitingToDie = new HashSet<String>();
    public static Set<Integer> zombieIds = new HashSet<Integer>();
+   public static int HEALTH = 50;
    private Zombie zombie;
    private String player;
    private PlayerInventory contents;
@@ -50,8 +51,8 @@ public class PvPLoggerZombie {
    }
 
    public void setInventoryContents(PlayerInventory pi){
-      zombie.setMaxHealth(50);
-      zombie.setHealth(50);
+      zombie.setMaxHealth(HEALTH);
+      zombie.setHealth(HEALTH);
       zombie.setRemoveWhenFarAway(false);
       zombie.setCanPickupItems(false);
       zombie.getEquipment().setArmorContents(pi.getArmorContents());

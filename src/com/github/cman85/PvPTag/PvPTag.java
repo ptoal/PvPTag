@@ -20,6 +20,7 @@ public class PvPTag extends JavaPlugin implements Listener {
    private static Logger logger;
    private long SAFE_DELAY = 30000;
    private long DEATH_TP_DELAY = 30000;
+   private ChatColor nameTagColor = ChatColor.DARK_RED;
    private DeathChestListener dcl;
    private long lastLogout = System.currentTimeMillis();
 
@@ -40,6 +41,8 @@ public class PvPTag extends JavaPlugin implements Listener {
       this.DEATH_TP_DELAY = Config.getInstance().getConfig().getInt("DeathTP Time") * 1000;
       DeathChest.CHEST_BREAK_DELAY = Config.getInstance().getConfig().getInt("Chest Time") * 1000;
       if(! Config.getInstance().getConfig().getBoolean("DeathTP Enabled")) this.DEATH_TP_DELAY = 0;
+      PvPLoggerZombie.HEALTH = Config.getInstance().getConfig().getInt("PvPLogger Health");
+      this.nameTagColor = Config.getInstance().parseNameTagColor();
    }
 
    public void onDisable(){
@@ -132,7 +135,7 @@ public class PvPTag extends JavaPlugin implements Listener {
 
    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
       if(cmd.getName().equalsIgnoreCase("callsafe") || cmd.getName().equalsIgnoreCase("csafe")){
-         if(sender.isOp()){
+         if(sender.isOp() || sender.hasPermission("pvptag.callsafe") || sender instanceof ConsoleCommandSender){
             if(args.length == 1){
                if(! args[0].equalsIgnoreCase("all")){
                   Player p = getServer().getPlayer(args[0]);
@@ -160,7 +163,7 @@ public class PvPTag extends JavaPlugin implements Listener {
             sender.sendMessage("§cYou must be an operator to use this command.");
          }
       }else if(cmd.getName().equalsIgnoreCase("callhit") || cmd.getName().equalsIgnoreCase("ch")){
-         if(sender.isOp()){
+         if(sender.isOp() || sender.hasPermission("pvptag.callhit") || sender instanceof ConsoleCommandSender){
             Player p;
             if(args.length != 1)
                return false;
