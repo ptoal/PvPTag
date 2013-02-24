@@ -1,6 +1,7 @@
 package com.github.cman85.PvPTag;
 
 import org.bukkit.*;
+import org.bukkit.configuration.*;
 import org.bukkit.configuration.file.*;
 
 import java.io.*;
@@ -35,6 +36,31 @@ public class Config {
       }
       config = new YamlConfiguration();
       loadYamls();
+      try{
+         tryUpdate();
+      }catch (Exception e){
+         e.printStackTrace();
+      }
+   }
+
+   private void tryUpdate() throws IOException, InvalidConfigurationException{
+      if(! config.getString("version").equalsIgnoreCase(pvptag.version)){
+         PvPTag.log(Level.CONFIG, "Updating config!");
+         File temp = new File(pvptag.getDataFolder(), "config.yml");
+         if(! temp.exists()) temp.createNewFile();
+         copy(pvptag.getResource("config.yml"), temp);
+         FileConfiguration newConfig = new YamlConfiguration();
+         newConfig.load(temp);
+         for(String s : config.getKeys(false)){
+            if(! s.equalsIgnoreCase("version"))
+               newConfig.set(s, config.get(s));
+            else
+               newConfig.set(s, newConfig.get(s));
+         }
+         saveYamls();
+      }else{
+         PvPTag.log(Level.INFO, "Config file up to date.");
+      }
    }
 
    public void disable(){

@@ -6,5 +6,6 @@ NameTag Color: 'c'       #Color that the nametag of unsafe people will be
 DeathChest Enabled: true
 DeathTP Enabled: true
 Use TagAPI: true
-Auto update: true
-version: 1.1             #Editing this will ruin the config. Sorry.
+Disable Flying: true     #Stops flight for those who aren't safe
+Auto update: true        #Auto update the plugin from dev.bukkit.org
+version: '1.2'           #Editing this might ruin the config. Sorry.

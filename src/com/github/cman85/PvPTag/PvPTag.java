@@ -20,8 +20,11 @@ public class PvPTag extends JavaPlugin implements Listener {
    private long SAFE_DELAY = 30000;
    private long DEATH_TP_DELAY = 30000;
    ChatColor nameTagColor;
+   private boolean disableFlight = true;
    private DeathChestListener dcl;
    private TagAPEye tagApi;
+   String version = "1.2";
+   private Updater updater;
    private long lastLogout = System.currentTimeMillis();
 
    public void onEnable(){
@@ -39,6 +42,7 @@ public class PvPTag extends JavaPlugin implements Listener {
       DeathChest.CHEST_BREAK_DELAY = Config.getInstance().getConfig().getInt("Chest Time") * 1000;
       if(! Config.getInstance().getConfig().getBoolean("DeathTP Enabled")) this.DEATH_TP_DELAY = 0;
       PvPLoggerZombie.HEALTH = Config.getInstance().getConfig().getInt("PVPLogger Health");
+      this.disableFlight = Config.getInstance().getConfig().getBoolean("Disable Flying");
       this.nameTagColor = Config.getInstance().parseNameTagColor();
       if(Config.getInstance().getConfig().getBoolean("DeathChest Enabled"))
          getServer().getPluginManager().registerEvents(dcl, this);
@@ -48,6 +52,9 @@ public class PvPTag extends JavaPlugin implements Listener {
          this.tagApi = new TagDisabled();
       }
       getServer().getPluginManager().registerEvents(tagApi, this);
+
+      if(Config.getInstance().getConfig().getBoolean(""))
+         updater = new Updater(this, "pvp-tag", this.getFile(), Updater.UpdateType.DEFAULT, false);
    }
 
    public void onDisable(){
@@ -215,6 +222,8 @@ public class PvPTag extends JavaPlugin implements Listener {
    private void addUnsafe(Player p){
       safeTimes.put(p.getName(), calcSafeTime(SAFE_DELAY));
       p.sendMessage("§cYou can now be hit anywhere for at least " + (SAFE_DELAY / 1000) + " seconds!");
+      p.setFlying(false);
+      p.setAllowFlight(false);
       refresh(p);
    }
 
@@ -291,6 +300,15 @@ public class PvPTag extends JavaPlugin implements Listener {
             PvPLoggerZombie.waitingToDie.add(pz.getPlayer());
             pz.despawnDrop(true);
          }
+      }
+   }
+
+   @EventHandler(priority = EventPriority.HIGHEST)
+   public void onFlight(PlayerToggleFlightEvent e){
+      if(disableFlight){
+         e.getPlayer().setFlying(false);
+         e.getPlayer().setAllowFlight(false);
+         e.setCancelled(true);
       }
    }
 
