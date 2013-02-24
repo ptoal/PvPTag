@@ -8,7 +8,6 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.*;
 import org.bukkit.plugin.java.*;
-import org.kitteh.tag.*;
 
 import java.util.*;
 import java.util.logging.*;
@@ -20,17 +19,16 @@ public class PvPTag extends JavaPlugin implements Listener {
    private static Logger logger;
    private long SAFE_DELAY = 30000;
    private long DEATH_TP_DELAY = 30000;
-   private ChatColor nameTagColor;
+   ChatColor nameTagColor;
    private DeathChestListener dcl;
+   private TagAPEye tagApi;
    private long lastLogout = System.currentTimeMillis();
 
    public void onEnable(){
       logger = getLogger();
-      manageConfig();
       dcl = new DeathChestListener(this);
+      manageConfig();
       getServer().getPluginManager().registerEvents(this, this);
-      if(Config.getInstance().getConfig().getBoolean("DeathChest Enabled"))
-         getServer().getPluginManager().registerEvents(dcl, this);
       task();
    }
 
@@ -40,8 +38,16 @@ public class PvPTag extends JavaPlugin implements Listener {
       this.DEATH_TP_DELAY = Config.getInstance().getConfig().getInt("DeathTP Time") * 1000;
       DeathChest.CHEST_BREAK_DELAY = Config.getInstance().getConfig().getInt("Chest Time") * 1000;
       if(! Config.getInstance().getConfig().getBoolean("DeathTP Enabled")) this.DEATH_TP_DELAY = 0;
-      PvPLoggerZombie.HEALTH = Config.getInstance().getConfig().getInt("PvPLogger Health");
+      PvPLoggerZombie.HEALTH = Config.getInstance().getConfig().getInt("PVPLogger Health");
       this.nameTagColor = Config.getInstance().parseNameTagColor();
+      if(Config.getInstance().getConfig().getBoolean("DeathChest Enabled"))
+         getServer().getPluginManager().registerEvents(dcl, this);
+      if(Config.getInstance().getConfig().getBoolean("Use TagAPI") && getServer().getPluginManager().getPlugin("TagAPI") != null){
+         this.tagApi = new TagEnabled(this);
+      }else{
+         this.tagApi = new TagDisabled();
+      }
+      getServer().getPluginManager().registerEvents(tagApi, this);
    }
 
    public void onDisable(){
@@ -77,7 +83,7 @@ public class PvPTag extends JavaPlugin implements Listener {
          }else if(isSafe(s)){
             iter.remove();
             player.sendMessage("§cYou are now safe.");
-            TagAPI.refreshPlayer(player);
+            refresh(player);
          }
       }
    }
@@ -145,7 +151,7 @@ public class PvPTag extends JavaPlugin implements Listener {
                      if(! isSafe(p.getName())){
                         callSafe(p);
                         sender.sendMessage("§c" + p.getName() + " is no longer hittable.");
-                        TagAPI.refreshPlayer(p);
+                        refresh(p);
                         return true;
                      }else{
                         sender.sendMessage("§c" + p.getName() + " was not hittable.");
@@ -209,15 +215,19 @@ public class PvPTag extends JavaPlugin implements Listener {
    private void addUnsafe(Player p){
       safeTimes.put(p.getName(), calcSafeTime(SAFE_DELAY));
       p.sendMessage("§cYou can now be hit anywhere for at least " + (SAFE_DELAY / 1000) + " seconds!");
-      TagAPI.refreshPlayer(p);
+      refresh(p);
    }
 
    private void callSafe(Player player){
       if(player != null){
          safeTimes.remove(player.getName());
-         TagAPI.refreshPlayer(player);
+         refresh(player);
          player.sendMessage("§cYou are now safe.");
       }
+   }
+
+   private void refresh(Player p){
+      tagApi.refresh(p);
    }
 
    public boolean isSafe(String player){
@@ -235,16 +245,6 @@ public class PvPTag extends JavaPlugin implements Listener {
    public void onDeath(PlayerRespawnEvent e){
       safeTimes.remove(e.getPlayer().getName());
       deathTimes.put(e.getPlayer().getName(), calcSafeTime(DEATH_TP_DELAY));
-   }
-
-   @EventHandler
-   public void onNameTag(PlayerReceiveNameTagEvent e){
-      if(! isSafe(e.getNamedPlayer().getName())){
-         Player p = e.getNamedPlayer();
-         e.setTag(nameTagColor + p.getName());
-      }else{
-         e.setTag(e.getNamedPlayer().getName());
-      }
    }
 
    @EventHandler(priority = EventPriority.HIGH)
@@ -278,7 +278,7 @@ public class PvPTag extends JavaPlugin implements Listener {
       PvPLoggerZombie pz = PvPLoggerZombie.getByOwner(e.getPlayer().getName());
       if(pz != null){
          safeTimes.put(e.getPlayer().getName(), calcSafeTime(SAFE_DELAY));
-         TagAPI.refreshPlayer(e.getPlayer());
+         refresh(e.getPlayer());
          pz.despawnNoDrop(true, true);
       }
    }
@@ -326,4 +326,5 @@ public class PvPTag extends JavaPlugin implements Listener {
          }
       }
    }
+
 }

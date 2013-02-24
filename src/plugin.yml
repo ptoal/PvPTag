@@ -2,6 +2,7 @@ name: PvPTag
 version: 1.1
 author: Tirelessly
 main: com.github.cman85.PvPTag.PvPTag
+softdepend: [TagAPI]
 commands:
    csafe:
       description: Make a player safe from attack
