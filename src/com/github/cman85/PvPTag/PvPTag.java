@@ -20,7 +20,7 @@ public class PvPTag extends JavaPlugin implements Listener {
    private static Logger logger;
    private long SAFE_DELAY = 30000;
    private long DEATH_TP_DELAY = 30000;
-   private ChatColor nameTagColor = ChatColor.DARK_RED;
+   private ChatColor nameTagColor;
    private DeathChestListener dcl;
    private long lastLogout = System.currentTimeMillis();
 
@@ -32,10 +32,9 @@ public class PvPTag extends JavaPlugin implements Listener {
       if(Config.getInstance().getConfig().getBoolean("DeathChest Enabled"))
          getServer().getPluginManager().registerEvents(dcl, this);
       task();
-      getServer();
    }
 
-   private void manageConfig(){
+   void manageConfig(){
       Config.getInstance().enable(this);
       this.SAFE_DELAY = Config.getInstance().getConfig().getInt("Safe Time") * 1000;
       this.DEATH_TP_DELAY = Config.getInstance().getConfig().getInt("DeathTP Time") * 1000;
@@ -163,7 +162,7 @@ public class PvPTag extends JavaPlugin implements Listener {
             sender.sendMessage("§cYou must be an operator to use this command.");
          }
       }else if(cmd.getName().equalsIgnoreCase("callhit") || cmd.getName().equalsIgnoreCase("ch")){
-         if(sender.isOp() || sender.hasPermission("pvptag.callhit") || sender instanceof ConsoleCommandSender){
+         if(sender.isOp() || sender.hasPermission("pvptag.pvptag") || sender instanceof ConsoleCommandSender){
             Player p;
             if(args.length != 1)
                return false;
@@ -180,6 +179,25 @@ public class PvPTag extends JavaPlugin implements Listener {
                addUnsafe(p);
             }
          }
+      }else if(cmd.getName().equalsIgnoreCase("pvptag")){
+         if(sender.isOp() || sender.hasPermission("pvptag.callhit") || sender instanceof ConsoleCommandSender){
+            if(args.length > 0){
+               if(args[0].equalsIgnoreCase("reload")){
+                  Config.getInstance().reload();
+                  sender.sendMessage("§cSettings reloaded!");
+               }else if(args[0].equalsIgnoreCase("setcolor")){
+                  if(args.length == 2){
+                     this.nameTagColor = ChatColor.getByChar(args[1]);
+                     Config.getInstance().getConfig().set("NameTag Color", this.nameTagColor.getChar());
+                     sender.sendMessage("§cColor changed to: " + this.nameTagColor + "this.");
+                  }
+               }else if(args[0].equalsIgnoreCase("save")){
+                  Config.getInstance().saveYamls();
+                  sender.sendMessage("§cConfig saved!");
+               }
+            }
+         }
+
       }
       return true;
    }
@@ -190,7 +208,7 @@ public class PvPTag extends JavaPlugin implements Listener {
 
    private void addUnsafe(Player p){
       safeTimes.put(p.getName(), calcSafeTime(SAFE_DELAY));
-      p.sendMessage("§cYou can now be hit anywhere for at least " + (SAFE_DELAY / 1000) + "seconds!");
+      p.sendMessage("§cYou can now be hit anywhere for at least " + (SAFE_DELAY / 1000) + " seconds!");
       TagAPI.refreshPlayer(p);
    }
 
@@ -223,7 +241,7 @@ public class PvPTag extends JavaPlugin implements Listener {
    public void onNameTag(PlayerReceiveNameTagEvent e){
       if(! isSafe(e.getNamedPlayer().getName())){
          Player p = e.getNamedPlayer();
-         e.setTag(ChatColor.DARK_RED + p.getName());
+         e.setTag(nameTagColor + p.getName());
       }else{
          e.setTag(e.getNamedPlayer().getName());
       }
@@ -239,7 +257,7 @@ public class PvPTag extends JavaPlugin implements Listener {
             Long deathTime = deathTimes.get(e.getPlayer().getName());
             Long currTime = System.currentTimeMillis();
             if(deathTime > currTime){
-               e.getPlayer().sendMessage("§cYou cannot teleport for " + (DEATH_TP_DELAY / 1000) + "seconds after dying. Time left: §6" + ((DEATH_TP_DELAY / 1000) - (deathTime / 1000 - currTime / 1000)));
+               e.getPlayer().sendMessage("§cYou cannot teleport for " + (DEATH_TP_DELAY / 1000) + " seconds after dying. Time left: §6" + ((DEATH_TP_DELAY / 1000) - (deathTime / 1000 - currTime / 1000)));
                e.setCancelled(true);
             }else{
 

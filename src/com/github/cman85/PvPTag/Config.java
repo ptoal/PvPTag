@@ -82,7 +82,12 @@ public class Config {
       }
    }
 
+   public void reload(){
+      loadYamls();
+      pvptag.manageConfig();
+   }
+
    public ChatColor parseNameTagColor(){
-      return ChatColor.valueOf(config.getString("NameTag Color"));
+      return ChatColor.getByChar(config.getString("NameTag Color"));
    }
 }

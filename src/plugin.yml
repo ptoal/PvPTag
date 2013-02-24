@@ -19,3 +19,7 @@ commands:
       description: Make a player vulnerable to attack
       usage: /callhit <player>
       permission: pvptag.callhit
+   pvptag:
+      description: PvPTag's technical command
+      usage: /pvptag <reload>
+      permission: pvptag.pvptag

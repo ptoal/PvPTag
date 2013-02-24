@@ -2,6 +2,6 @@ Safe Time: 30            #Amount of seconds before players become "safe"
 Chest Time: 45           #Amount of seconds before deathchests are open for everyone
 DeathTP Time: 30         #Amount of seconds before players can teleport after death
 PVPLogger Health: 50     #Health the PVP logger zombie has when it spawns
-NameTag Color: DARK_RED  #Color that the nametag of unsafe people will be
+NameTag Color: 'c'       #Color that the nametag of unsafe people will be
 DeathChest Enabled: true
 DeathTP Enabled: true
