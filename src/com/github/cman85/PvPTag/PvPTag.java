@@ -53,7 +53,7 @@ public class PvPTag extends JavaPlugin implements Listener {
       }
       getServer().getPluginManager().registerEvents(tagApi, this);
 
-      if(Config.getInstance().getConfig().getBoolean(""))
+      if(Config.getInstance().getConfig().getBoolean("Auto update"))
          updater = new Updater(this, "pvp-tag", this.getFile(), Updater.UpdateType.DEFAULT, false);
    }
 
@@ -305,7 +305,7 @@ public class PvPTag extends JavaPlugin implements Listener {
 
    @EventHandler(priority = EventPriority.HIGHEST)
    public void onFlight(PlayerToggleFlightEvent e){
-      if(disableFlight){
+      if(disableFlight && ! isSafe(e.getPlayer().getName())){
          e.getPlayer().setFlying(false);
          e.getPlayer().setAllowFlight(false);
          e.setCancelled(true);
