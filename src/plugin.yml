@@ -1,5 +1,5 @@
 name: PvPTag
-version: 1.2
+version: 1.2.1
 author: Tirelessly
 main: com.github.cman85.PvPTag.PvPTag
 softdepend: [TagAPI]
@@ -12,7 +12,7 @@ commands:
       description: Make a player safe from attack
       usage: /callsafe <player>
       permission: pvptag.callsafe
-   ch:
+   chit:
       description: Make a player vulnerable to attack
       usage: /ch <player>
       permission: pvptag.callhit

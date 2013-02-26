@@ -45,18 +45,17 @@ public class Config {
 
    private void tryUpdate() throws IOException, InvalidConfigurationException{
       if(! config.getString("version").equalsIgnoreCase(pvptag.version)){
-         PvPTag.log(Level.CONFIG, "Updating config!");
-         File temp = new File(pvptag.getDataFolder(), "config.yml");
-         if(! temp.exists()) temp.createNewFile();
-         copy(pvptag.getResource("config.yml"), temp);
+         PvPTag.log(Level.INFO, "Updating config!");
+         copy(pvptag.getResource("config.yml"), configFile);
          FileConfiguration newConfig = new YamlConfiguration();
-         newConfig.load(temp);
+         newConfig.load(configFile);
          for(String s : config.getKeys(false)){
             if(! s.equalsIgnoreCase("version"))
                newConfig.set(s, config.get(s));
             else
                newConfig.set(s, newConfig.get(s));
          }
+         this.config = newConfig;
          saveYamls();
       }else{
          PvPTag.log(Level.INFO, "Config file up to date.");

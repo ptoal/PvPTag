@@ -3,9 +3,10 @@ Chest Time: 45           #Amount of seconds before deathchests are open for ever
 DeathTP Time: 30         #Amount of seconds before players can teleport after death
 PVPLogger Health: 50     #Health the PVP logger zombie has when it spawns
 NameTag Color: 'c'       #Color that the nametag of unsafe people will be
+Remove Invisible: true   #Makes people who are unsafe visible
 DeathChest Enabled: true
 DeathTP Enabled: true
 Use TagAPI: true
 Disable Flying: true     #Stops flight for those who aren't safe
 Auto update: true        #Auto update the plugin from dev.bukkit.org
-version: '1.2'           #Editing this might ruin the config. Sorry.
+version: '1.2.1'         #Editing this might ruin the config. Sorry.
