@@ -72,8 +72,6 @@ public class PvPTag extends JavaPlugin implements Listener {
             player.sendMessage("§cYou are now safe.");
             fixFlying(player);
             refresh(player);
-         }else{
-            unInvis(player);
          }
       }
    }
@@ -125,7 +123,7 @@ public class PvPTag extends JavaPlugin implements Listener {
    }
 
    private void removeFlight(Player p){
-      if(disableFlight){
+      if(disableFlight && p.getGameMode() != GameMode.CREATIVE){
          if(p.getAllowFlight()) couldFly.add(p.getName());
          if(p.isFlying()) hadFlight.add(p.getName());
          p.setFlying(false);
