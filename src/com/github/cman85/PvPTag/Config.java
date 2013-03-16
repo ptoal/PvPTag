@@ -56,6 +56,11 @@ public class Config {
       pvptag.saveConfig();
    }
 
+   public void reload(){
+      pvptag.reloadConfig();
+      pvptag.manageConfig();
+   }
+
    public ChatColor parseNameTagColor(){
       return ChatColor.getByChar(getConfig().getString("Tagging.NameTag Color"));
    }

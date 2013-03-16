@@ -43,8 +43,23 @@ public class PvPTag extends JavaPlugin implements Listener {
       logger = getLogger();
       dcl = new DeathChestListener(this);
       manageConfig();
+      manageInstances();
       getServer().getPluginManager().registerEvents(new PvPTagListener(this), this);
       task();
+   }
+
+   private void manageInstances(){
+      if(configuration.getConfig().getBoolean("Death.DeathChest Enabled"))
+         getServer().getPluginManager().registerEvents(dcl, this);
+      if(configuration.getConfig().getBoolean("Tagging.Use TagAPI") && getServer().getPluginManager().getPlugin("TagAPI") != null){
+         this.tagApi = new TagEnabled(this);
+      }else{
+         this.tagApi = new TagDisabled();
+      }
+      getServer().getPluginManager().registerEvents(tagApi, this);
+
+      if(configuration.getConfig().getBoolean("Auto update"))
+         updater = new Updater(this, "pvp-tag", this.getFile(), Updater.UpdateType.DEFAULT, false);
    }
 
    void manageConfig(){
@@ -63,18 +78,6 @@ public class PvPTag extends JavaPlugin implements Listener {
       this.antiPilejump = configuration.getConfig().getBoolean("Tagging.Anti Pilejump");
 
       this.pvpZombEnabled = configuration.getConfig().getBoolean("PvPLogger Zombie.Enabled");
-
-      if(configuration.getConfig().getBoolean("Death.DeathChest Enabled"))
-         getServer().getPluginManager().registerEvents(dcl, this);
-      if(configuration.getConfig().getBoolean("Tagging.Use TagAPI") && getServer().getPluginManager().getPlugin("TagAPI") != null){
-         this.tagApi = new TagEnabled(this);
-      }else{
-         this.tagApi = new TagDisabled();
-      }
-      getServer().getPluginManager().registerEvents(tagApi, this);
-
-      if(configuration.getConfig().getBoolean("Auto update"))
-         updater = new Updater(this, "pvp-tag", this.getFile(), Updater.UpdateType.DEFAULT, false);
    }
 
    private void resetNameTagsAuto(){

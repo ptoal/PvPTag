@@ -62,16 +62,16 @@ public class MainCommandListener {
          if(sender.isOp() || sender.hasPermission("pvptag.callhit") || sender instanceof ConsoleCommandSender){
             if(args.length > 0){
                if(args[0].equalsIgnoreCase("reload")){
-                  Config.getInstance().reload();
+                  pvPTag.configuration.reload();
                   sender.sendMessage("§cSettings reloaded!");
                }else if(args[0].equalsIgnoreCase("setcolor")){
                   if(args.length == 2){
                      pvPTag.setNameTagColor(ChatColor.getByChar(args[1]));
-                     Config.getInstance().getConfig().set("NameTag Color", pvPTag.getNameTagColor().getChar());
+                     pvPTag.configuration.getConfig().set("Tagging.NameTag Color", pvPTag.getNameTagColor().getChar());
                      sender.sendMessage("§cColor changed to: " + pvPTag.getNameTagColor() + "this.");
                   }
                }else if(args[0].equalsIgnoreCase("save")){
-                  Config.getInstance().saveYamls();
+                  pvPTag.configuration.disable();
                   sender.sendMessage("§cConfig saved!");
                }
             }
