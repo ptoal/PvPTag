@@ -17,49 +17,46 @@ public class PvPTagListener implements Listener {
 
    @EventHandler(priority = EventPriority.HIGHEST)
    public void onHit(EntityDamageByEntityEvent e){
+      if(! pvptag.configuration.isPVPWorld(e)) return;
+      if(! pvptag.taggingEnabled) return;
       if(e.getDamager() instanceof Snowball) e.setCancelled(true);
-      if(! e.getEntity().getWorld().getName().equalsIgnoreCase("ArenaWorld")){
-         if(e.getEntity() instanceof Player){
-            Player hitter;
-            Player hitted = (Player)e.getEntity();
-            if(e.getDamager() instanceof Arrow){
-               Arrow arrow = (Arrow)e.getDamager();
-               if(arrow.getShooter() instanceof Player){
-                  hitter = (Player)arrow.getShooter();
-               }else{
-                  return;
-               }
-            }else if(e.getDamager() instanceof Player){
-               hitter = (Player)e.getDamager();
-
-            }else if(e.getDamager() instanceof Zombie){
-               if(PvPLoggerZombie.isPvPZombie((Zombie)e.getDamager())){
-                  if(pvptag.isSafe(hitted.getName())) e.setCancelled(true);
-               }
-               return;
+      if(e.getEntity() instanceof Player){
+         Player hitter;
+         Player hitted = (Player)e.getEntity();
+         if(e.getDamager() instanceof Arrow){
+            Arrow arrow = (Arrow)e.getDamager();
+            if(arrow.getShooter() instanceof Player){
+               hitter = (Player)arrow.getShooter();
             }else{
                return;
             }
-            if(! e.isCancelled()){
-               if(pvptag.isSafe(hitted.getName())){
-                  pvptag.addUnsafe(hitted);
-               }
+         }else if(e.getDamager() instanceof Player){
+            hitter = (Player)e.getDamager();
+
+         }else if(e.getDamager() instanceof Zombie){
+            if(PvPLoggerZombie.isPvPZombie((Zombie)e.getDamager())){
+               if(pvptag.isSafe(hitted.getName())) e.setCancelled(true);
+            }
+            return;
+         }else{
+            return;
+         }
+         if(! e.isCancelled()){
+            if(pvptag.isSafe(hitted.getName())){
+               pvptag.addUnsafe(hitted);
+            }
+            if(pvptag.isSafe(hitter.getName())){
+               pvptag.addUnsafe(hitter);
+            }
+         }else{
+            if(! pvptag.isSafe(hitted.getName()) && hitter.getInventory().getItemInHand() != null){
                if(pvptag.isSafe(hitter.getName())){
-                  pvptag.addUnsafe(hitter);
-               }
-               pvptag.safeTimes.put(hitted.getName(), pvptag.calcSafeTime(pvptag.SAFE_DELAY));
-               pvptag.safeTimes.put(hitter.getName(), pvptag.calcSafeTime(pvptag.SAFE_DELAY));
-            }else{
-               if(! pvptag.isSafe(hitted.getName()) && hitter.getInventory().getItemInHand() != null){
-                  e.setCancelled(false);
-                  pvptag.safeTimes.put(hitted.getName(), pvptag.calcSafeTime(pvptag.SAFE_DELAY));
-                  pvptag.safeTimes.put(hitter.getName(), pvptag.calcSafeTime(pvptag.SAFE_DELAY));
-                  if(pvptag.isSafe(hitter.getName())){
+                  if(! pvptag.antiPilejump){
+                     e.setCancelled(false);
                      pvptag.addUnsafe(hitter);
                   }
                }
             }
-
          }
       }
    }
@@ -101,8 +98,7 @@ public class PvPTagListener implements Listener {
       }
       PvPLoggerZombie pz = PvPLoggerZombie.getByOwner(e.getPlayer().getName());
       if(pz != null){
-         pvptag.safeTimes.put(e.getPlayer().getName(), pvptag.calcSafeTime(pvptag.SAFE_DELAY));
-         pvptag.refresh(e.getPlayer());
+         pvptag.addUnsafe(e.getPlayer());
          pz.despawnNoDrop(true, true);
       }
    }
@@ -129,7 +125,7 @@ public class PvPTagListener implements Listener {
 
    @EventHandler
    public void onQuit(PlayerQuitEvent e){
-      if(! pvptag.isSafe(e.getPlayer().getName())){
+      if(! pvptag.isSafe(e.getPlayer().getName()) && pvptag.pvpZombEnabled){
          lastLogout = System.currentTimeMillis();
          new PvPLoggerZombie(e.getPlayer().getName());
       }

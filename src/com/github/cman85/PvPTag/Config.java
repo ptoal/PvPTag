@@ -1,55 +1,42 @@
 package com.github.cman85.PvPTag;
 
 import org.bukkit.*;
-import org.bukkit.configuration.*;
 import org.bukkit.configuration.file.*;
+import org.bukkit.event.entity.*;
 
-import java.io.*;
-import java.util.logging.*;
+import java.util.*;
 
 public class Config {
 
-   private static Config instance = new Config();
-   public File configFile;
+   private static PvPTag pvptag;
+   private Set<String> disabledWorlds = new HashSet<String>();
 
-   private FileConfiguration config;
-   private PvPTag pvptag;
-
-   private Config(){
-   }
-
-   public static Config getInstance(){
-      return instance;
+   public Config(PvPTag pvptag){
+      this.pvptag = pvptag;
    }
 
    public FileConfiguration getConfig(){
-      return config;
+      return pvptag.getConfig();
    }
 
-   public void enable(PvPTag tag){
-      this.pvptag = tag;
-      configFile = new File(pvptag.getDataFolder(), "config.yml");
-      try{
-         firstRun();
-      }catch (Exception e){
-         e.printStackTrace();
-      }
-      config = new YamlConfiguration();
-      loadYamls();
-      try{
-         tryUpdate();
-      }catch (Exception e){
-         e.printStackTrace();
-      }
+   public void enable(){
+      tryUpdate();
+      disabledWorlds();
    }
 
-   private void tryUpdate() throws IOException, InvalidConfigurationException{
-      if(! config.getString("version").equalsIgnoreCase(pvptag.version)){
+   private void disabledWorlds(){
+      String[] disabled = getConfig().getString("Tagging.Disabled Worlds").split(",");
+      for(String s : disabled)
+         disabledWorlds.add(s);
+   }
+
+   private void tryUpdate(){
+/*      if(! config.getString("version").equalsIgnoreCase(pvptag.version)){
          PvPTag.log(Level.INFO, "Updating config!");
          copy(pvptag.getResource("config.yml"), configFile);
          FileConfiguration newConfig = new YamlConfiguration();
          newConfig.load(configFile);
-         for(String s : config.getKeys(false)){
+         for(String s : config.getKeys(true)){
             if(! s.equalsIgnoreCase("version"))
                newConfig.set(s, config.get(s));
             else
@@ -60,59 +47,20 @@ public class Config {
       }else{
          PvPTag.log(Level.INFO, "Config file up to date.");
       }
+      */
+      pvptag.getConfig().options().copyDefaults(false);
+      pvptag.saveConfig();
    }
 
    public void disable(){
-      saveYamls();
-   }
-
-   private void firstRun() throws Exception{
-      if(configFile.exists()){
-         pvptag.getLogger().log(Level.INFO, "Config file found!");
-      }else{
-         pvptag.getLogger().log(Level.INFO, "Config file NOT found, creating now!");
-         configFile.getParentFile().mkdirs();
-         copy(pvptag.getResource("config.yml"), configFile);
-      }
-   }
-
-   private void copy(InputStream in, File file){
-      try{
-         OutputStream out = new FileOutputStream(file);
-         byte[] buf = new byte[1024];
-         int len;
-         while((len = in.read(buf)) > 0){
-            out.write(buf, 0, len);
-         }
-         out.close();
-         in.close();
-      }catch (Exception e){
-         e.printStackTrace();
-      }
-   }
-
-   public void loadYamls(){
-      try{
-         config.load(configFile);
-      }catch (Exception e){
-         e.printStackTrace();
-      }
-   }
-
-   public void saveYamls(){
-      try{
-         config.save(configFile);
-      }catch (IOException e){
-         e.printStackTrace();
-      }
-   }
-
-   public void reload(){
-      loadYamls();
-      pvptag.manageConfig();
+      pvptag.saveConfig();
    }
 
    public ChatColor parseNameTagColor(){
-      return ChatColor.getByChar(config.getString("NameTag Color"));
+      return ChatColor.getByChar(getConfig().getString("Tagging.NameTag Color"));
+   }
+
+   public boolean isPVPWorld(EntityDamageByEntityEvent e){
+      return disabledWorlds.contains(e.getEntity().getWorld().getName());
    }
 }

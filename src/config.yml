@@ -1,12 +1,19 @@
-Safe Time: 30            #Amount of seconds before players become "safe"
-Chest Time: 45           #Amount of seconds before deathchests are open for everyone
-DeathTP Time: 30         #Amount of seconds before players can teleport after death
-PVPLogger Health: 50     #Health the PVP logger zombie has when it spawns
-NameTag Color: 'c'       #Color that the nametag of unsafe people will be
-Remove Invisible: true   #Makes people who are unsafe visible
-DeathChest Enabled: true
-DeathTP Enabled: true
-Use TagAPI: true
-Disable Flying: true     #Stops flight for those who aren't safe
+Tagging:
+    Enabled: true             #Turns off making people unsafe
+    NameTag Color: 'c'        #Color that the nametag of unsafe people will be
+    Remove Invisible: true    #Makes people who are unsafe visible
+    Disable Enderpearls: true #Disables enderpearls for people who are unsafe
+    Anti Pilejump: false      #Only the people who were PVPing in the unsafe zone can continue to pvp
+    Disable Flying: true     #Stops flight for those who aren't safe
+    Safe Time: 30
+    Disabled Worlds: 'example1,example2'
+    Use TagAPI: true
+Death:
+    DeathTP Enabled: true
+    DeathTP Time: 30         #Amount of seconds before players can teleport after death
+    DeathChest Enabled: true
+    Chest Time: 45           #Amount of seconds before deathchests are open for everyone
+PvPLogger Zombie:
+    Enabled: true
+    Health: 50
 Auto update: true        #Auto update the plugin from dev.bukkit.org
-version: '1.2.1'         #Editing this might ruin the config. Sorry.

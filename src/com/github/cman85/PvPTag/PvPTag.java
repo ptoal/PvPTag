@@ -15,21 +15,31 @@ public class PvPTag extends JavaPlugin implements Listener {
    private final MainCommandListener mainCommandListener = new MainCommandListener(this);
    HashMap<String, Long> safeTimes = new HashMap<String, Long>();
    HashMap<String, Long> deathTimes = new HashMap<String, Long>();
+
    private Set<String> couldFly = new HashSet<String>();
    private Set<String> hadFlight = new HashSet<String>();
+
    private static Logger logger;
+   private TagAPEye tagApi;
+   private Updater updater;
+   private DeathChestListener dcl;
+   Config configuration;
+
    long SAFE_DELAY = 30000;
    long DEATH_TP_DELAY = 30000;
+
    boolean useDeathTP = true;
-   ChatColor nameTagColor;
    boolean disableFlight = true;
-   private DeathChestListener dcl;
-   private TagAPEye tagApi;
-   String version = "1.2.1";
-   private Updater updater;
+   boolean antiPilejump = false;
    private boolean unInvis = true;
+   boolean pvpZombEnabled = true;
+   boolean taggingEnabled = true;
+
+   ChatColor nameTagColor;
+   String version = "1.2.4";
 
    public void onEnable(){
+      configuration = new Config(this);
       logger = getLogger();
       dcl = new DeathChestListener(this);
       manageConfig();
@@ -38,25 +48,32 @@ public class PvPTag extends JavaPlugin implements Listener {
    }
 
    void manageConfig(){
-      Config.getInstance().enable(this);
-      this.SAFE_DELAY = Config.getInstance().getConfig().getInt("Safe Time") * 1000;
-      this.DEATH_TP_DELAY = Config.getInstance().getConfig().getInt("DeathTP Time") * 1000;
-      DeathChest.CHEST_BREAK_DELAY = Config.getInstance().getConfig().getInt("Chest Time") * 1000;
-      useDeathTP = Config.getInstance().getConfig().getBoolean("DeathTP Enabled");
-      PvPLoggerZombie.HEALTH = Config.getInstance().getConfig().getInt("PVPLogger Health");
-      this.disableFlight = Config.getInstance().getConfig().getBoolean("Disable Flying");
-      this.unInvis = Config.getInstance().getConfig().getBoolean("Remove Invisible");
-      this.nameTagColor = Config.getInstance().parseNameTagColor();
-      if(Config.getInstance().getConfig().getBoolean("DeathChest Enabled"))
+      configuration.enable();
+      this.SAFE_DELAY = configuration.getConfig().getInt("Tagging.Safe Time") * 1000;
+      this.DEATH_TP_DELAY = configuration.getConfig().getInt("Death.DeathTP Time") * 1000;
+      DeathChest.CHEST_BREAK_DELAY = configuration.getConfig().getInt("Death.Chest Time") * 1000;
+      useDeathTP = configuration.getConfig().getBoolean("Death.DeathTP Enabled");
+      this.nameTagColor = configuration.parseNameTagColor();
+
+      PvPLoggerZombie.HEALTH = configuration.getConfig().getInt("PvPLogger Zombie.Health");
+
+      this.disableFlight = configuration.getConfig().getBoolean("Tagging.Disable Flying");
+      this.unInvis = configuration.getConfig().getBoolean("Tagging.Remove Invisible");
+      this.taggingEnabled = configuration.getConfig().getBoolean("Tagging.Enabled");
+      this.antiPilejump = configuration.getConfig().getBoolean("Tagging.Anti Pilejump");
+
+      this.pvpZombEnabled = configuration.getConfig().getBoolean("PvPLogger Zombie.Enabled");
+
+      if(configuration.getConfig().getBoolean("Death.DeathChest Enabled"))
          getServer().getPluginManager().registerEvents(dcl, this);
-      if(Config.getInstance().getConfig().getBoolean("Use TagAPI") && getServer().getPluginManager().getPlugin("TagAPI") != null){
+      if(configuration.getConfig().getBoolean("Tagging.Use TagAPI") && getServer().getPluginManager().getPlugin("TagAPI") != null){
          this.tagApi = new TagEnabled(this);
       }else{
          this.tagApi = new TagDisabled();
       }
       getServer().getPluginManager().registerEvents(tagApi, this);
 
-      if(Config.getInstance().getConfig().getBoolean("Auto update"))
+      if(configuration.getConfig().getBoolean("Auto update"))
          updater = new Updater(this, "pvp-tag", this.getFile(), Updater.UpdateType.DEFAULT, false);
    }
 
@@ -97,7 +114,7 @@ public class PvPTag extends JavaPlugin implements Listener {
    }
 
    public void onDisable(){
-      Config.getInstance().disable();
+      configuration.disable();
       callSafeAllManual();
       dcl.breakAll();
    }
