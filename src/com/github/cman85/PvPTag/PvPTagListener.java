@@ -156,4 +156,22 @@ public class PvPTagListener implements Listener {
       }
    }
 
+   @EventHandler
+   public void onProject(ProjectileLaunchEvent e){
+      if(pvptag.disableEnderpearls)
+         if(e.getEntity() instanceof EnderPearl){
+            EnderPearl pearl = (EnderPearl)e.getEntity();
+            if(pearl.getShooter() instanceof Player){
+               Player p = (Player)pearl.getShooter();
+               if(! pvptag.isSafe(p.getName())) e.setCancelled(true);
+            }
+         }
+   }
+
+   @EventHandler
+   public void command(PlayerCommandPreprocessEvent e){
+      if(pvptag.configuration.isBannedCommand(e.getMessage()) && ! pvptag.isSafe(e.getPlayer().getName()))
+         e.setCancelled(true);
+   }
+
 }

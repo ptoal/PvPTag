@@ -4,10 +4,11 @@ Tagging:
     Remove Invisible: true    #Makes people who are unsafe visible
     Disable Enderpearls: true #Disables enderpearls for people who are unsafe
     Anti Pilejump: false      #Only the people who were PVPing in the unsafe zone can continue to pvp
-    Disable Flying: true     #Stops flight for those who aren't safe
+    Disable Flying: true      #Stops flight for those who aren't safe
     Safe Time: 30
     Disabled Worlds: 'example1,example2'
     Use TagAPI: true
+    Disabled Commands: 'warp,heal'
 Death:
     DeathTP Enabled: true
     DeathTP Time: 30         #Amount of seconds before players can teleport after death

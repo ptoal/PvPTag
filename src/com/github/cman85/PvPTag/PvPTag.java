@@ -34,6 +34,7 @@ public class PvPTag extends JavaPlugin implements Listener {
    private boolean unInvis = true;
    boolean pvpZombEnabled = true;
    boolean taggingEnabled = true;
+   boolean disableEnderpearls = true;
 
    ChatColor nameTagColor;
    String version = "1.2.4";
@@ -76,8 +77,8 @@ public class PvPTag extends JavaPlugin implements Listener {
       this.unInvis = configuration.getConfig().getBoolean("Tagging.Remove Invisible");
       this.taggingEnabled = configuration.getConfig().getBoolean("Tagging.Enabled");
       this.antiPilejump = configuration.getConfig().getBoolean("Tagging.Anti Pilejump");
-
       this.pvpZombEnabled = configuration.getConfig().getBoolean("PvPLogger Zombie.Enabled");
+      this.disableEnderpearls = configuration.getConfig().getBoolean("Tagging.Disable Enderpearls");
    }
 
    private void resetNameTagsAuto(){

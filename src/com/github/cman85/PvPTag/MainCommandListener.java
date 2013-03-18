@@ -41,7 +41,7 @@ public class MainCommandListener {
             sender.sendMessage("§cYou must be an operator to use this command.");
          }
       }else if(cmd.getName().equalsIgnoreCase("callhit") || cmd.getName().equalsIgnoreCase("chit")){
-         if(sender.isOp() || sender.hasPermission("pvptag.pvptag") || sender instanceof ConsoleCommandSender){
+         if(sender.isOp() || sender.hasPermission("pvptag.callhit") || sender instanceof ConsoleCommandSender){
             Player p;
             if(args.length != 1)
                return false;
@@ -59,7 +59,7 @@ public class MainCommandListener {
             }
          }
       }else if(cmd.getName().equalsIgnoreCase("pvptag")){
-         if(sender.isOp() || sender.hasPermission("pvptag.callhit") || sender instanceof ConsoleCommandSender){
+         if(sender.isOp() || sender.hasPermission("pvptag.pvptag") || sender instanceof ConsoleCommandSender){
             if(args.length > 0){
                if(args[0].equalsIgnoreCase("reload")){
                   pvPTag.configuration.reload();
