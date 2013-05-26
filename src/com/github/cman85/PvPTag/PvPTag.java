@@ -3,12 +3,14 @@ package com.github.cman85.PvPTag;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Objective;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,6 +36,8 @@ public class PvPTag extends JavaPlugin implements Listener {
    private TagAPEye tagApi;
    private Updater updater;
    private DeathChestListener dcl;
+   ScoreboardFeatures scoreboard;
+   private static PvPTag instance;
    Config configuration;
    ChatColor nameTagColor;
 
@@ -49,14 +53,20 @@ public class PvPTag extends JavaPlugin implements Listener {
    boolean taggingEnabled = true;
    boolean disableEnderpearls = true;
    boolean deathChestEnabled = true;
+
+   boolean healthObjective = true;
+   boolean safeTimeObjective = true;
+
    static boolean keepPlayerHealthZomb = true;
 
    public void onEnable() {
+      instance = this;
       configuration = new Config(this);
       logger = getLogger();
       dcl = new DeathChestListener(this);
       manageConfig();
       manageInstances();
+      scoreboard = new ScoreboardFeatures(false, safeTimeObjective);
       getServer().getPluginManager().registerEvents(new PvPTagListener(this), this);
       task();
    }
@@ -102,21 +112,41 @@ public class PvPTag extends JavaPlugin implements Listener {
       this.preventTeleport = configuration.getConfig().getBoolean("Tagging.Prevent Teleport", true);
       PvPTag.keepPlayerHealthZomb = configuration.getConfig().getBoolean("PvPLogger Zombie.Keep Player Health", true);
       this.deathChestEnabled = configuration.getConfig().getBoolean("Death.DeathChest Enabled", true);
+      this.safeTimeObjective = configuration.getConfig().getBoolean("Scoreboard Display.Safe Time", true);
+      this.healthObjective = configuration.getConfig().getBoolean("Scoreboard Display.Health", true);
    }
 
    private void resetNameTagsAuto() {
       Iterator<String> iter = safeTimes.keySet().iterator();
+      final Objective displaySafeTime = scoreboard.getBoard().getObjective("displaySafeTime");
       while(iter.hasNext()) {
          String s = iter.next();
          Player player = getServer().getPlayer(s);
          if(player == null) {
+            OfflinePlayer p = getServer().getOfflinePlayer(s);
+            clearFromBoard(p);
             iter.remove();
          } else if(isSafe(s)) {
             iter.remove();
             player.sendMessage("§cYou are now safe.");
+            clearFromBoard(player);
             fixFlying(player);
             refresh(player);
+         } else {
+            if(safeTimeObjective) {
+               long currTime = System.currentTimeMillis();
+               long safeTime = safeTimes.get(s);
+               displaySafeTime.getScore(player).setScore((int)(safeTime / 1000 - currTime / 1000));
+            }
          }
+      }
+   }
+
+   void clearFromBoard(OfflinePlayer player) {
+      if(safeTimeObjective || healthObjective) {
+         if(player instanceof Player)
+            ((Player)player).setScoreboard(getServer().getScoreboardManager().getNewScoreboard());
+         scoreboard.getBoard().resetScores(player);
       }
    }
 
@@ -143,6 +173,7 @@ public class PvPTag extends JavaPlugin implements Listener {
    public void onDisable() {
       callSafeAllManual();
       dcl.breakAll();
+      instance = null;
    }
 
    public void task() {
@@ -155,11 +186,17 @@ public class PvPTag extends JavaPlugin implements Listener {
 
    void addUnsafe(Player p) {
       PvPTag.debug("Setting player unsafe: " + p.getName());
+      addToBoard(p);
       resetSafeTime(p);
       p.sendMessage("§cYou can now be hit anywhere for at least " + (SAFE_DELAY / 1000) + " seconds!");
       removeFlight(p);
       refresh(p);
       unInvis(p);
+   }
+
+   private void addToBoard(Player p) {
+      if(healthObjective || safeTimeObjective)
+         p.setScoreboard(scoreboard.getBoard());
    }
 
    void resetSafeTime(Player p) {
@@ -181,6 +218,7 @@ public class PvPTag extends JavaPlugin implements Listener {
 
    void callSafe(Player player) {
       if(player != null) {
+         clearFromBoard(player);
          safeTimes.remove(player.getName());
          refresh(player);
          player.sendMessage("§cYou are now safe.");
@@ -216,6 +254,10 @@ public class PvPTag extends JavaPlugin implements Listener {
 
    public static void log(Level level, String message) {
       logger.log(level, message);
+   }
+
+   public static PvPTag getInstance() {
+      return instance;
    }
 
    public static void debug(String message) {

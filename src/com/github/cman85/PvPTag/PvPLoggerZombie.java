@@ -33,7 +33,8 @@ public class PvPLoggerZombie {
       zombieIds.add((zombie = (Zombie)p.getWorld().spawnEntity(p.getLocation(), EntityType.ZOMBIE)).getEntityId());
       zombie.getWorld().playEffect(zombie.getLocation(), Effect.MOBSPAWNER_FLAMES, 1, 1);
       zombie.setRemoveWhenFarAway(false);
-      setInventoryContents(Bukkit.getPlayer(player).getInventory());
+      setInventoryContents(p.getInventory());
+      p.getInventory().clear();
       Iterator<PvPLoggerZombie> it = zombies.iterator();
       while(it.hasNext()) {
          PvPLoggerZombie pz = it.next();

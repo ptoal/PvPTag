@@ -31,6 +31,8 @@ public class DeathChestListener implements Listener {
    @EventHandler(priority = EventPriority.HIGHEST)
    public void onChestOpen(PlayerInteractEvent e) {
       if(! plugin.deathChestEnabled) return;
+      if(! plugin.configuration.isPVPWorld(e.getPlayer().getWorld())) return;
+
       if(e.getClickedBlock() != null) {
          if(e.getClickedBlock().getType() == Material.CHEST) {
             Block clickedChest = e.getClickedBlock();
@@ -72,6 +74,7 @@ public class DeathChestListener implements Listener {
    @EventHandler
    public void onDeathChest(PlayerDeathEvent e) {
       if(! plugin.deathChestEnabled) return;
+      if(! plugin.configuration.isPVPWorld(e.getEntity().getWorld())) return;
 
       Player dead = e.getEntity();
       Player killer;

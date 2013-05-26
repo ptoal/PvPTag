@@ -59,9 +59,13 @@ public class PvPTagListener implements Listener {
             PvPTag.debug("Event shouldn't be cancelled");
             if(pvptag.isSafe(hitted.getName())) {
                pvptag.addUnsafe(hitted);
+            } else {
+               pvptag.resetSafeTime(hitted);
             }
             if(pvptag.isSafe(hitter.getName())) {
                pvptag.addUnsafe(hitter);
+            } else {
+               pvptag.resetSafeTime(hitter);
             }
          } else {
             PvPTag.debug("Event should be cancelled");
@@ -86,6 +90,8 @@ public class PvPTagListener implements Listener {
    @EventHandler
    public void onDeath(PlayerRespawnEvent e) {
       pvptag.safeTimes.remove(e.getPlayer().getName());
+      pvptag.clearFromBoard(e.getPlayer());
+
       if(pvptag.useDeathTP)
          pvptag.deathTimes.put(e.getPlayer().getName(), pvptag.calcSafeTime(pvptag.DEATH_TP_DELAY));
    }

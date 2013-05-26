@@ -1,6 +1,7 @@
 package com.github.cman85.PvPTag;
 
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
@@ -98,6 +99,10 @@ public class Config {
 
    public boolean isPVPWorld(EntityDamageByEntityEvent e) {
       return ! disabledWorlds.contains(e.getEntity().getWorld().getName());
+   }
+
+   public boolean isPVPWorld(World w) {
+      return ! disabledWorlds.contains(w.getName());
    }
 
    public boolean isBannedCommand(String command) {

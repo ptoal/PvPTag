@@ -1,5 +1,5 @@
 name: PvPTag
-version: 1.3
+version: 1.3.2
 author: Tirelessly
 main: com.github.cman85.PvPTag.PvPTag
 softdepend: [TagAPI]

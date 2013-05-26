@@ -6,6 +6,7 @@ Tagging:
     Disable Enderpearls: true #Disables enderpearls for people who are unsafe
     Anti Pilejump: false      #Only the people who were PVPing in the unsafe zone can continue to pvp
     Disable Flying: true      #Stops flight for those who aren't safe
+    Prevent Teleport: true
     Safe Time: 30
     Disabled Worlds: 'example1,example2'
     Use TagAPI: true
@@ -19,5 +20,7 @@ PvPLogger Zombie:
     Enabled: true
     Keep Player Health: true #Set true to make the zombie spawn with the player's health
     Health: 50
+Scoreboard Display:
+    Safe Time: true
 Auto update: true            #Auto update the plugin from dev.bukkit.org
 Send Usage: true             #Sends plugin usage statistics.
