@@ -21,7 +21,6 @@ public class PvPLoggerZombie {
    public static Set<Integer> zombieIds = new HashSet<Integer>();
    public static int HEALTH = 50;
    private int hp = 10;
-   private int loggedoutHP = 0;
    private Zombie zombie;
    private String player;
    private PlayerInventory contents;
@@ -34,7 +33,6 @@ public class PvPLoggerZombie {
       zombie.getWorld().playEffect(zombie.getLocation(), Effect.MOBSPAWNER_FLAMES, 1, 1);
       zombie.setRemoveWhenFarAway(false);
       setInventoryContents(p.getInventory());
-      p.getInventory().clear();
       Iterator<PvPLoggerZombie> it = zombies.iterator();
       while(it.hasNext()) {
          PvPLoggerZombie pz = it.next();
@@ -114,6 +112,7 @@ public class PvPLoggerZombie {
          PvPLoggerZombie pz = it.next();
          if(pz.getPlayer().equalsIgnoreCase(player)) it.remove();
       }
+      zombie.remove();
    }
 
    public void despawnDrop(boolean iterate) {

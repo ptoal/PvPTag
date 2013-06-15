@@ -28,6 +28,8 @@ public class PvPTag extends JavaPlugin implements Listener {
 
    private Set<String> couldFly = new HashSet<String>();
    private Set<String> hadFlight = new HashSet<String>();
+   private Set<String> consoleCommands = new HashSet<String>();
+   private Set<String> playerCommands = new HashSet<String>();
 
    private static Logger logger;
 
@@ -81,7 +83,7 @@ public class PvPTag extends JavaPlugin implements Listener {
       }
       getServer().getPluginManager().registerEvents(tagApi, this);
 
-      if(configuration.getConfig().getBoolean("Auto update"))
+      if(configuration.getConfig().getBoolean("Auto update", false))
          updater = new Updater(this, "pvp-tag", this.getFile(), Updater.UpdateType.DEFAULT, false);
       if(configuration.getConfig().getBoolean("Send Usage")) {
          try {
@@ -172,8 +174,16 @@ public class PvPTag extends JavaPlugin implements Listener {
 
    public void onDisable() {
       callSafeAllManual();
+   //   dealWithZombies();
       dcl.breakAll();
       instance = null;
+   }
+
+   private void dealWithZombies() {
+      for(PvPLoggerZombie pz: PvPLoggerZombie.zombies){
+         pz.despawn();
+
+      }
    }
 
    public void task() {
@@ -192,6 +202,8 @@ public class PvPTag extends JavaPlugin implements Listener {
       removeFlight(p);
       refresh(p);
       unInvis(p);
+      configuration.performConsoleUnsafeCommands(p);
+      configuration.performUnsafeCommands(p);
    }
 
    private void addToBoard(Player p) {
@@ -222,6 +234,8 @@ public class PvPTag extends JavaPlugin implements Listener {
          safeTimes.remove(player.getName());
          refresh(player);
          player.sendMessage("§cYou are now safe.");
+         configuration.performConsoleSafeCommands(player);
+         configuration.performSafeCommands(player);
       }
    }
 

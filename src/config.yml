@@ -6,11 +6,18 @@ Tagging:
     Disable Enderpearls: true #Disables enderpearls for people who are unsafe
     Anti Pilejump: false      #Only the people who were PVPing in the unsafe zone can continue to pvp
     Disable Flying: true      #Stops flight for those who aren't safe
-    Prevent Teleport: true
     Safe Time: 30
     Disabled Worlds: 'example1,example2'
     Use TagAPI: true
     Disabled Commands: 'warp,heal'
+    Commands:
+        Enabled: false
+        Console Unsafe: 'gamemode PLAYER 0,say &4Announcement: &6PLAYER &chas just become unsafe at PLAYERLOCATION'
+        Player Unsafe: 'md'
+        Console Safe: 'heal PLAYER'
+        Player Safe: 'home'
+        PLAYERLOCATION Setup: 'x: X, y: Y, z: Z in world WORLD'
+        #See http://dev.bukkit.org/bukkit-mods/pvp-tag/pages/config-setup/
 Death:
     DeathTP Enabled: true
     DeathTP Time: 30         #Amount of seconds before players can teleport after death
@@ -22,5 +29,5 @@ PvPLogger Zombie:
     Health: 50
 Scoreboard Display:
     Safe Time: true
-Auto update: true            #Auto update the plugin from dev.bukkit.org
+Auto update: false            #Auto update the plugin from dev.bukkit.org
 Send Usage: true             #Sends plugin usage statistics.
