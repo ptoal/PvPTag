@@ -29,10 +29,10 @@ public class PvPLoggerZombie {
       this.player = player;
       Player p = Bukkit.getPlayer(player);
       hp = p.getHealth();
-      zombieIds.add((zombie = (Zombie)p.getWorld().spawnEntity(p.getLocation(), EntityType.ZOMBIE)).getEntityId());
+      zombieIds.add((zombie = (Zombie) p.getWorld().spawnEntity(p.getLocation(), EntityType.ZOMBIE)).getEntityId());
       zombie.getWorld().playEffect(zombie.getLocation(), Effect.MOBSPAWNER_FLAMES, 1, 1);
       zombie.setRemoveWhenFarAway(false);
-      setInventoryContents(p.getInventory());
+      invFromPlayer(p); // Take player's inventory and apply it to this zombie.
       Iterator<PvPLoggerZombie> it = zombies.iterator();
       while(it.hasNext()) {
          PvPLoggerZombie pz = it.next();
@@ -60,7 +60,8 @@ public class PvPLoggerZombie {
       this.player = player;
    }
 
-   public void setInventoryContents(PlayerInventory pi) {
+   public void invFromPlayer(Player p) {
+      PlayerInventory pi = p.getInventory();
       zombie.setMaxHealth(getHealth());
       zombie.setHealth(getHealth());
       zombie.setRemoveWhenFarAway(false);
@@ -75,9 +76,32 @@ public class PvPLoggerZombie {
       pi.setArmorContents(new ItemStack[] { null, null, null, null });
       pi.setItemInHand(null);
       this.contents = pi;
+      // We've saved the player's inventory, now let's wipe it from the player, so no dupes. -Sage905
+      p.getInventory().setContents(new ItemStack[]{});
+      p.updateInventory();
    }
 
-   public List<ItemStack> itemsToDrop() {
+    public void invToPlayer(Player p) {
+        PlayerInventory pi = p.getInventory();
+
+        // Give to Player
+        pi.setContents(this.contents.getContents());
+        pi.setArmorContents(zombie.getEquipment().getArmorContents());
+        pi.setItemInHand(zombie.getEquipment().getItemInHand());
+        p.updateInventory();
+
+        // Take from Zombie
+        zombie.getEquipment().setBootsDropChance(0);
+        zombie.getEquipment().setChestplateDropChance(0);
+        zombie.getEquipment().setHelmetDropChance(0);
+        zombie.getEquipment().setLeggingsDropChance(0);
+        zombie.getEquipment().setItemInHandDropChance(0);
+        zombie.getEquipment().setArmorContents(new ItemStack[]{});
+        zombie.getEquipment().setItemInHand(null);
+
+    }
+
+    public List<ItemStack> itemsToDrop() {
       List<ItemStack> itemsToDrop = new ArrayList<ItemStack>();
       for(ItemStack i : contents.getContents()) {
          if(i != null) itemsToDrop.add(i);
@@ -86,21 +110,19 @@ public class PvPLoggerZombie {
    }
 
    public void despawnNoDrop(boolean giveToOwner, boolean iterate) {
-      zombie.getEquipment().setBootsDropChance(0);
-      zombie.getEquipment().setChestplateDropChance(0);
-      zombie.getEquipment().setHelmetDropChance(0);
-      zombie.getEquipment().setLeggingsDropChance(0);
-      zombie.getEquipment().setItemInHandDropChance(0);
       if(giveToOwner) {
          Player p = Bukkit.getPlayer(player);
          if(p == null) {
             PvPTag.log(Level.WARNING, "Player was null!");
             return;
          }
-         p.getInventory().setContents(contents.getContents());
-         p.getInventory().setArmorContents(zombie.getEquipment().getArmorContents());
-         p.getInventory().setItemInHand(zombie.getEquipment().getItemInHand());
+         invToPlayer(p);
       }
+      zombie.getEquipment().setBootsDropChance(0);
+      zombie.getEquipment().setChestplateDropChance(0);
+      zombie.getEquipment().setHelmetDropChance(0);
+      zombie.getEquipment().setLeggingsDropChance(0);
+      zombie.getEquipment().setItemInHandDropChance(0);
       zombie.remove();
       if(iterate)
          despawn();

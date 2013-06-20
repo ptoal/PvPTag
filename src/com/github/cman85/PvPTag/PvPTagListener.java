@@ -10,12 +10,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.world.ChunkUnloadEvent;
 
 public class PvPTagListener implements Listener {
@@ -118,12 +113,13 @@ public class PvPTagListener implements Listener {
    @SuppressWarnings("deprecation")
    @EventHandler
    public void onJoin(PlayerJoinEvent e) {
-      if(PvPLoggerZombie.waitingToDie.contains(e.getPlayer().getName())) {
-         e.getPlayer().getInventory().clear();
-         e.getPlayer().setHealth(0);
-         e.getPlayer().updateInventory();
-         PvPLoggerZombie.waitingToDie.remove(e.getPlayer().getName());
-      }
+       //This code is part of the Dupe problem
+//      if(PvPLoggerZombie.waitingToDie.contains(e.getPlayer().getName())) {
+//         e.getPlayer().getInventory().clear();
+//         e.getPlayer().setHealth(0);
+//         e.getPlayer().updateInventory();
+//         PvPLoggerZombie.waitingToDie.remove(e.getPlayer().getName());
+//      }
       PvPLoggerZombie pz = PvPLoggerZombie.getByOwner(e.getPlayer().getName());
       if(pz != null) {
          pvptag.addUnsafe(e.getPlayer());
