@@ -23,7 +23,7 @@ public class PvPLoggerZombie {
    private int hp = 10;
    private Zombie zombie;
    private String player;
-   private PlayerInventory contents;
+   private ItemStack[] contents;
 
    public PvPLoggerZombie(String player) {
       this.player = player;
@@ -60,7 +60,8 @@ public class PvPLoggerZombie {
       this.player = player;
    }
 
-   public void invFromPlayer(Player p) {
+    @SuppressWarnings("deprecation")
+    public void invFromPlayer(Player p) {
       PlayerInventory pi = p.getInventory();
       zombie.setMaxHealth(getHealth());
       zombie.setHealth(getHealth());
@@ -68,24 +69,25 @@ public class PvPLoggerZombie {
       zombie.setCanPickupItems(false);
       zombie.getEquipment().setArmorContents(pi.getArmorContents());
       zombie.getEquipment().setItemInHand(pi.getItemInHand());
-      zombie.getEquipment().setBootsDropChance(100);
-      zombie.getEquipment().setChestplateDropChance(100);
-      zombie.getEquipment().setHelmetDropChance(100);
-      zombie.getEquipment().setLeggingsDropChance(100);
-      zombie.getEquipment().setItemInHandDropChance(100);
+      zombie.getEquipment().setBootsDropChance(0);
+      zombie.getEquipment().setChestplateDropChance(0);
+      zombie.getEquipment().setHelmetDropChance(0);
+      zombie.getEquipment().setLeggingsDropChance(0);
+      zombie.getEquipment().setItemInHandDropChance(0);
       pi.setArmorContents(new ItemStack[] { null, null, null, null });
       pi.setItemInHand(null);
-      this.contents = pi;
+      this.contents = pi.getContents();
       // We've saved the player's inventory, now let's wipe it from the player, so no dupes. -Sage905
-      p.getInventory().setContents(new ItemStack[]{});
+      p.getInventory().clear();
       p.updateInventory();
    }
 
+    @SuppressWarnings("deprecation")
     public void invToPlayer(Player p) {
         PlayerInventory pi = p.getInventory();
 
         // Give to Player
-        pi.setContents(this.contents.getContents());
+        pi.setContents(this.contents);
         pi.setArmorContents(zombie.getEquipment().getArmorContents());
         pi.setItemInHand(zombie.getEquipment().getItemInHand());
         p.updateInventory();
@@ -103,7 +105,7 @@ public class PvPLoggerZombie {
 
     public List<ItemStack> itemsToDrop() {
       List<ItemStack> itemsToDrop = new ArrayList<ItemStack>();
-      for(ItemStack i : contents.getContents()) {
+      for(ItemStack i : contents) {
          if(i != null) itemsToDrop.add(i);
       }
       return itemsToDrop;
@@ -139,10 +141,18 @@ public class PvPLoggerZombie {
 
    public void despawnDrop(boolean iterate) {
       zombie.setCanPickupItems(false);
-      for(ItemStack is : contents.getContents()) {
+      for(ItemStack is : contents) {
          if(is != null)
             zombie.getWorld().dropItemNaturally(zombie.getLocation(), is);
       }
+      // Drop armor in same condition.  Allowing it to drop by the zombie will damage it.
+      for (ItemStack is: zombie.getEquipment().getArmorContents()) {
+          if(is != null)
+              zombie.getWorld().dropItemNaturally(zombie.getLocation(), is);
+      }
+      // Same with the ItemInHand
+      zombie.getWorld().dropItemNaturally(zombie.getLocation(), zombie.getEquipment().getItemInHand());
+
       zombie.getWorld().playEffect(zombie.getLocation(), Effect.ENDER_SIGNAL, 1, 1);
       zombie.setHealth(0);
       zombie.remove();

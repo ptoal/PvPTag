@@ -113,13 +113,10 @@ public class PvPTagListener implements Listener {
    @SuppressWarnings("deprecation")
    @EventHandler
    public void onJoin(PlayerJoinEvent e) {
-       //This code is part of the Dupe problem
-//      if(PvPLoggerZombie.waitingToDie.contains(e.getPlayer().getName())) {
-//         e.getPlayer().getInventory().clear();
-//         e.getPlayer().setHealth(0);
-//         e.getPlayer().updateInventory();
-//         PvPLoggerZombie.waitingToDie.remove(e.getPlayer().getName());
-//      }
+      if(PvPLoggerZombie.waitingToDie.contains(e.getPlayer().getName())) {
+         e.getPlayer().setHealth(0);
+         PvPLoggerZombie.waitingToDie.remove(e.getPlayer().getName());
+      }
       PvPLoggerZombie pz = PvPLoggerZombie.getByOwner(e.getPlayer().getName());
       if(pz != null) {
          pvptag.addUnsafe(e.getPlayer());
