@@ -151,7 +151,9 @@ public class PvPLoggerZombie {
               zombie.getWorld().dropItemNaturally(zombie.getLocation(), is);
       }
       // Same with the ItemInHand
-      zombie.getWorld().dropItemNaturally(zombie.getLocation(), zombie.getEquipment().getItemInHand());
+      if (zombie.getEquipment().getItemInHand() != null) {
+         zombie.getWorld().dropItemNaturally(zombie.getLocation(), zombie.getEquipment().getItemInHand());
+      }
 
       zombie.getWorld().playEffect(zombie.getLocation(), Effect.ENDER_SIGNAL, 1, 1);
       zombie.setHealth(0);
@@ -166,6 +168,7 @@ public class PvPLoggerZombie {
       }
       return null;
    }
+
 
    public static PvPLoggerZombie getByZombie(Zombie z) {
       for(PvPLoggerZombie pz : zombies) {

@@ -147,7 +147,17 @@ public class PvPTagListener implements Listener {
    }
 
    @EventHandler
+   public void onKick(PlayerKickEvent e) {
+       // If a player is being kicked (like during shutdown),
+       // mark them "safe", so they don't get turned into a Zombie
+       if (! pvptag.isSafe(e.getPlayer().getName())) {
+           pvptag.callSafe(e.getPlayer());
+       }
+   }
+
+   @EventHandler
    public void onQuit(PlayerQuitEvent e) {
+
       if(! pvptag.isSafe(e.getPlayer().getName()) && pvptag.pvpZombEnabled) {
          lastLogout = System.currentTimeMillis();
          new PvPLoggerZombie(e.getPlayer().getName());
